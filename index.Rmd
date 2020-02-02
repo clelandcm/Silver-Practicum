@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fi
 ```
 
 # Learning R
-* [R Introduction](https://clelandcm.github.io/Hands-On-R-Practice/Silver-Practicum/Cleland-R-Introduction.html)
+* [R Introduction](https://clelandcm.github.io/Silver-Practicum/Cleland-R-Introduction.html)
 * [Hands-On R Practice](https://clelandcm.github.io/Hands-On-R-Practice/)
 * [UCLA Institute for Digital Research & Education Resources for Learning R](https://stats.idre.ucla.edu/R/)
 
