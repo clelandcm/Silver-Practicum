@@ -19,21 +19,23 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, comment=NA, fig
 ```
 
 # About me
-* Senior Research Scientist and Biostatistician
-* Center for Drug Use and HIV Research
+* Member of the Faculty, NYU Grossman School of Medicine, Department of Populatio Health, Division of Biostatistics
+* Center for Drug Use and HIV Research, Director of the Transdisciplinary Methods Core
 * Research and Methods Interests
      + HIV prevention and care 
      + health disparities
      + meta-analysis
      + longitudinal data analysis
 * Contact
-     + email: cmc13@nyu.edu
-     + phone: 212-992-9417
-     + location: 433 First Ave., Room 737
+     + email: Charles.Cleland@nyulangone.org
+     + phone: 212-646-3692
+     + location: 180 Madison Avenue, Room 2-53
+* [Curriculum Vitae](https://clelandcm.github.io/Cleland-CV/)
    
 # Goals for Today
 * What is R
-* Why I use R and you should too
+* R vs. R Studio
+* Basics
 * Getting data into and out of R
 * Data management with R
 * Making plots with R
@@ -48,8 +50,11 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, comment=NA, fig
 * Organized into packages of functions and other objects
 
 # R vs. R Studio
+* R is a statistical computing environment, with functions organized in packages to carry out a broad array of analytic work
+* R Studio is a populatio integrated development environment (IDE) for R which adds workflow functionality and makes for a smoother user experience
 
-# Basic Operations
+# Basics
+## Basic Operations
 ```{r }
 1 + 2 + 3
 1 + 2 * 3
@@ -59,14 +64,14 @@ c(0,1,2,3,5,8)
 1:11 + 3
 ```
 
-# Assignment
+## Assignment
 ```{r}
 x <- 3
 y <- 1:10
 z <- c(1,20,3,6)
 ```
 
-# Evaluation
+## Evaluation
 ```{r}
 x
 y
@@ -75,13 +80,13 @@ x + y
 x * z
 ```
 
-# Getting help within R
+## Getting help within R
 ```{r echo=TRUE, eval=FALSE}
 ?mean
 help(mean)
 ```
 
-# Types of R Objects
+## Types of R Objects
 * Data frame
      + Like the typical two-dimensional table of data in other programs
 * Vector
@@ -93,7 +98,7 @@ help(mean)
      + Provides ways to get a great deal accomplished with very concise code
 * Function
 
-# Types of R variables in Data Frames
+## Types of R variables in Data Frames
 * Character
 ```{r }
 my.character <- c('Emma','Olivia','Sophia')
@@ -120,7 +125,7 @@ my.logical <- c(TRUE,FALSE,FALSE)
 my.logical
 ```
 
-# Vectorized Arithmetic
+## Vectorized Arithmetic
 ```{r }
 weight.kg <- c(60, 72, 57, 90, 95, 72)
 height.meters <- c(1.75, 1.80, 1.65, 1.90, 1.74, 1.91)
@@ -130,7 +135,7 @@ bmi
 * Works element by element in the weight.kg and height.meters vectors
 * There is no need for a loop
 
-# Make simple R objects
+## Make simple R objects
 ```{r }
 byear <- c(68,69,71,72)
 byear
@@ -139,19 +144,19 @@ Boys <- data.frame(kid = c('JHC','CMC','REC','WBC'),
 Boys
 ```
 
-# Access names and types of variables in a data frame
+## Access names and types of variables in a data frame
 ```{r }
 names(Boys)
 str(Boys)
 ```
 
-# Accessing variables in data frames
+## Accessing variables in data frames
 ```{r }
 Boys$kid
 with(Boys, mean(byear))
 ```
 
-# The R Workspace
+## The R Workspace
 * Objects you create are stored in a workspace
 * R allows working with multiple objects at once, not just a single dataset
 * Here is how to show what is in the workspace at any given point:
@@ -179,22 +184,22 @@ ls("package:haven")
 * read.xlsx for MS-Excel (openxlsx package)
 * Many other formats and connections to databases
 
-# read.table
+## read.table
 ```{r }
 mytable <- read.table("c:/chuck/NYU/Stat Group/table1.txt", sep=",", header=TRUE)
 mytable
 str(mytable)
 ```
 
-# read_sav
+## read_sav
 ```{r }
 library(haven)
 titanic <- read_sav("c:/chuck/NYU/Stat Group/titanic.sav")
 head(titanic)
-attributes(titanic)$variable.labels
+attributes(titanic$pclass)
 ```
 
-# Read and combine many files
+## Read and combine many files
 * There are 8 MS-Excel files with the same structure in a folder
 * Each has 10 observations on two variables, X and Y
 * First, I load the package needed for reading Excel files, then get a list of the file names
@@ -234,13 +239,14 @@ dim(my.DF) # 80 observations, 2 variables
 ```
 * The example has just 8 files in the folder, but it could be thousands and the principle is the same
 
-# Getting data out of R
+## Getting data out of R
 * write.table for plain text (comma or tab delimited)
 * write_sav for SPSS (haven package)
 * write_dta for Stata (haven package)
 * write.xlsx for MS-Excel (openxlsx package)
 
-# Data management: Recoding
+# Data management
+## Recoding
 ```{r results='hide'}
 library(car)
 auto <- read_sav("c:/chuck/NYU/Stat Group/R Workshop/auto.sav")
@@ -252,7 +258,7 @@ auto$MPG3 <- car::recode(auto$MPG, "lo:18=1; 19:23=2; 24:hi=3")
 table(auto$MPG3)
 ```
 
-# Data management: Merging
+## Merging
 Two data frames with a common ID variable
 ```{r }
 A <- data.frame(famid = c(2,1,3), 
@@ -273,9 +279,10 @@ AB <- merge(A, B)
 AB
 ```
 
-# Data management: Subsetting
+## Subsetting
 ```{r }
 bank <- read_sav("c:/chuck/NYU/Stat Group/bank.sav")
+bank <- as_factor(bank)
 head(bank)
 ```
 * The <code>head()</code> function is a convenient way to see the first few observations of a data object
@@ -294,7 +301,7 @@ bank[bank$SALBEG < 4000 & bank$SEX == "Males", c(1,3,2,5,6)]
      + subset specified the variables to include by name
      + indexing specified the variables to include based on their location in the data frame
 
-# Data management: Reshaping, Wide to Long
+## Reshaping, Wide to Long
 ```{r }
 mytable <- read.table("c:/chuck/NYU/Stat Group/table1.txt", sep=",", header=TRUE)
 mytable
@@ -304,24 +311,24 @@ longtab <- gather(mytable, year, inc, inc80:inc82)
 longtab
 ```
 
-# Data management: Reshaping, Long to Wide
+## Reshaping, Long to Wide
 ```{r }
 longtab
 widetab <- spread(longtab, year, inc)
 widetab
 ```
 
-# Reshaping with data.table
+## Reshaping with data.table
 * https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html
 * https://github.com/Rdatatable/data.table/wiki/Getting-started
 
-# Data management: Aggregating
+## Aggregating
 ```{r }
 head(iris)
 aggregate(iris[,1:4], list(Species = iris$Species), FUN = mean)
 ```
 
-# Data Management: Set Operations
+## Set Operations
 ```{r }
 x <- c('A','B','C','D')
 y <- c('D','A','F','J')
@@ -336,7 +343,7 @@ union(x, y) # elements in either x or y
 y %in% c("F","J") # which elements of y are equal to "F" or "J"
 ```
 
-# Data Management: Character Manipulation
+## Character Manipulation
 ```{r }
 x <- c('A','B','C','D')
 grep('C', x)
@@ -346,7 +353,7 @@ x <- c('fruit_apple','instrument_guitar','instrument_piano','fruit_orange','inst
 grepl("fruit", x)
 ```
 
-# Data Management: dplyr package
+## dplyr package
 * <code>library(dplyr)</code>
 * <code>filter()</code>
 * <code>select()</code>
@@ -355,7 +362,7 @@ grepl("fruit", x)
 * <code>group_by()</code>
 * <code>arrange()</code>
 
-# Houston flights data
+### Houston flights data
 * All flights departing from Houston airports IAH and HOU
 * Research and Innovation Technology Administration at the Bureau of Transporation Statistics
 
@@ -368,13 +375,13 @@ head(hflights)
 str(hflights)
 ```
 
-# Using filter() to select observations
+### Using filter() to select observations
 * January flights by American Airlines
 ```{r }
 head(filter(hflights, Month == 1, UniqueCarrier == "AA"))
 ```
 
-# Using select() to select variables
+### Using select() to select variables
 
 * Just the Departure Time, Arrival Time, and Air Time variables
 ```{r }
@@ -385,14 +392,14 @@ head(select(hflights, DepTime, ArrTime, AirTime))
 head(select(hflights, ends_with("Time")))
 ```
 
-# Using mutate() to create new variables
+### Using mutate() to create new variables
 
 ```{r }
 g1 <- mutate(hflights, ActualGroundTime = ActualElapsedTime - AirTime)
 head(select(g1, ActualElapsedTime, AirTime, ActualGroundTime))
 ```
 
-# Using summarize()
+### Using summarize()
 
 ```{r }
 summarize(hflights, min_dist = min(Distance),
@@ -402,7 +409,7 @@ summarize(hflights, min_dist = min(Distance),
                     max_dist = max(Distance))
 ```
 
-# Using group_by() and summarize() to summarize by group
+### Using group_by() and summarize() to summarize by group
 * This also illustrates the use of pipes in R
 ```{r }
 hflights %>% group_by(UniqueCarrier) %>%
@@ -413,7 +420,7 @@ summarize(min_dist = min(Distance),
           max_dist = max(Distance))
 ```
 
-# Notice group_by() and summarize() essentially aggregate
+* **Notice group_by() and summarize() essentially aggregate**
 
 ```{r }
 iris %>% 
@@ -425,7 +432,7 @@ iris %>%
 ```
 * But much more flexibly!
 
-# Putting data into a desired order with arrange()
+### Putting data into a desired order with arrange()
 
 ```{r }
 hflights %>% group_by(UniqueCarrier) %>%
@@ -437,7 +444,7 @@ summarize(min_dist = min(Distance),
 arrange(mean_dist)
 ```
 
-# Benefits of Piping
+## Benefits of Piping
 
 Without Piping
 ```{r}
@@ -462,29 +469,30 @@ mtcars %>%
   arrange(desc(Avg_mpg))
 ```
 
-# Plots: Histogram
+# Plots
+## Histogram
 ```{r fig.align='center', fig.width=8, fig.height=5}
 hsb2 <- read_sav("https://clelandcm.github.io/Hands-On-R-Practice/hsb2.sav")
 library(ggplot2)
 ggplot(hsb2, aes(x = WRITE)) + geom_histogram(color = "grey", fill = "#34ebbd")
 ```
 
-# Plots: Bar
+## Bar
 ```{r }
 library(openxlsx)
 fname <- read.xlsx("c:/chuck/NYU/Stat Group/R Workshop/Female-Names.xlsx", sheet = 1)
 fname
 ```
 
-```{r fig.align='center', fig.width=6, fig.height=6}
-ggplot(fname, aes(x = Name, y = Ngirls)) + 
+```{r fig.align='center', fig.width=4, fig.height=6}
+ggplot(fname, aes(x = forcats::fct_reorder(Name, Ngirls), y = Ngirls)) + 
   geom_bar(stat = 'identity') + 
   ylab('Number') + xlab('') + 
   ggtitle('Ten Most Common Female Baby\nNames in 2014') +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
 
-# Plots: Scatter
+## Scatter
 ggplot2 package
 ```{r fig.align='center', fig.width=6, fig.height=6}
 ggplot(hsb2, aes(x = WRITE, y = READ)) + geom_point()
@@ -495,7 +503,7 @@ Base R
 plot(READ ~ WRITE, data = hsb2)
 ```
 
-# Plots: Scatter Enhanced
+## Scatter Enhanced
 ```{r fig.align='center', fig.width=8, fig.height=5}
 library(ggplot2)
 bank$GENDER <- as_factor(bank$GENDER)
@@ -503,7 +511,7 @@ ggplot(subset(bank, SALNOW < 30000), aes(x = SALBEG, y = SALNOW, color = GENDER)
   geom_point()
 ```
 
-# Plots: Scatter with Facets
+## Scatter with Facets
 ```{r fig.align='center', fig.width=8, fig.height=5}
 library(ggplot2)
 ggplot(subset(bank, SALNOW < 30000), aes(x = SALBEG, y = SALNOW)) + 
@@ -511,12 +519,14 @@ ggplot(subset(bank, SALNOW < 30000), aes(x = SALBEG, y = SALNOW)) +
   facet_wrap( ~ GENDER)
 ```
 
-# Plots: Boxplots
+## Boxplots
 * Writing score on vertical axis
-```{r fig.align='center', fig.width=3, fig.height=6}
+```{r fig.align='center', fig.width=1.5, fig.asp=1.5}
 hsb <- read_dta('c:/chuck/NYU/Stat Group/R Workshop/hsb.dta')
-hsb$female <- as.factor(hsb$female)
-ggplot(hsb, aes(x = female, y = write)) + geom_boxplot() + xlab("")
+hsb <- as_factor(hsb)
+ggplot(hsb, aes(x = female, y = write)) + geom_boxplot() + xlab("") +
+  theme(axis.text = element_text(size = 4),
+        axis.title = element_text(size = 5))
 ```
 
 * Flip coordinates so writing score is on the horizontal axis
@@ -524,7 +534,7 @@ ggplot(hsb, aes(x = female, y = write)) + geom_boxplot() + xlab("")
 ggplot(hsb, aes(x = female, y = write)) + geom_boxplot() + xlab("") + coord_flip()
 ```
 
-# Plots: Alpha Transparency
+## Alpha Transparency
 ```{r echo=FALSE, results='hide'}
 myDF <- data.frame(X = runif(6000))
 myDF$Y <- 100 + 2.43*myDF$X + rnorm(6000)
@@ -540,7 +550,7 @@ ggplot(myDF, aes(x=X,y=Y)) + geom_point(color="blue", size=3)
 ggplot(myDF, aes(x=X,y=Y)) + geom_point(color="blue", size=3, alpha =.20)
 ```
 
-# Plots: Networks
+## Networks
 ```{r fig.align='center', fig.width=8, fig.height=5}
 library(igraph)
 net.bg <- barabasi.game(80) 
@@ -552,7 +562,7 @@ E(net.bg)$arrow.mode <- 0
 plot(net.bg, layout=layout.lgl)
 ```
 
-# Plots: More customized
+## A more customized plot
 ```{r fig.width = 9, fig.height = 6, warning=FALSE, cache=TRUE}
 library(ggplot2) # devtools::install_github("hadley/ggplot2")
 library(ggalt)   # devtools::install_github("hrbrmstr/ggalt")
@@ -614,19 +624,20 @@ gg <- gg + theme(plot.caption=element_text(size=7, margin=margin(t=12), color="#
 gg
 ```
 
-# Analysis: descriptive statistics
+# Analysis
+## descriptive statistics
 ```{r }
 hsb <- read_dta('c:/chuck/NYU/Stat Group/R Workshop/hsb.dta')
 summary(hsb)
 ```
 
-# Analysis: frequencies
+## frequencies
 ```{r }
 library(descr)
 with(bank, freq(JOBCAT, plot=FALSE))
 ```
 
-# Analysis: crosstabulation
+## crosstabulation
 ```{r echo=FALSE, results='hide'}
 library(descr)
 ctab <- with(bank, crosstab(SEX, JOBCAT %in% c("Clerical","Office trainee"), 
@@ -643,13 +654,13 @@ with(bank, CrossTable(SEX, JOBCAT %in% c("Clerical","Office trainee"),
 ctab
 ```
 
-# More detailed descriptive statistics for quantitative variables
+## More detailed descriptive statistics for quantitative variables
 ```{r }
 library(psych)
 psych::describe(subset(hsb, select=c(read,write,math,science,socst)))
 ```
 
-# Analysis: t-tests
+## t-tests
 - Following these examples: http://www.ats.ucla.edu/stat/stata/output/ttest_output.htm
 - One sample t-test where hypothesized mean for write score is 50
 ```{r }
@@ -672,15 +683,15 @@ t.test(write ~ female, data = hsb, var.equal = TRUE)
 t.test(write ~ female, data = hsb)
 ```
 
-# Analysis: Correlation
+## Correlation
 ```{r }
 hsb <- read_sav("c:/chuck/NYU/Stat Group/R Workshop/hsb2.sav")
 round(cor(subset(hsb, select=c(READ,WRITE,MATH,SCIENCE,SOCST))), 2)
 cor.test(~ READ + SOCST, data = hsb)
 ```
 
-# Analysis: Linear Regression
-- Following this SPSS example: http://www.ats.ucla.edu/stat/spss/output/reg_spss.htm
+## Linear Regression
+- Following this SPSS example: https://stats.idre.ucla.edu/spss/output/regression-analysis/
 ```{r }
 hsb <- read_sav("c:/chuck/NYU/Stat Group/R Workshop/hsb2.sav")
 head(hsb)
@@ -700,7 +711,7 @@ summary(lm.1)
 confint(lm.1)
 ```
 
-# Analysis: Logistic Regression
+## Logistic Regression
 - Following this SPSS example: https://stats.idre.ucla.edu/spss/examples/alr2/applied-logistic-regression-second-edition-by-hosmer-and-lemeshowchapter-2-multiple-logistic-regression/
 - Chapter 2, Applied Logistic Regression, Second Edition, by Hosmer and Lemeshow
 
@@ -792,6 +803,8 @@ sample(10)
      + frequency tables and crosstabs
 - lme4
      + linear and generalized linear mixed effects
+- data.table
+     + efficient data table storage and powerful tools to manipulate data tables
 
 # Where and how to find R packages
 - Comprehensive R Archive Network (CRAN; https://cran.r-project.org/mirrors.html)
