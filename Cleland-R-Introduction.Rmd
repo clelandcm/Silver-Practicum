@@ -1,0 +1,822 @@
+---
+title: "Cleland Introduction to R"
+author: "Chuck Cleland"
+date: "2/1/2020"
+output:
+  html_document:
+    highlight: tango
+    theme: spacelab
+    toc: yes
+    toc_depth: 5
+  word_document:
+    toc: yes
+    toc_depth: '5'
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, comment=NA, fig.width = 6, out.width = "90%", fig.align = "center", dev='svg')
+```
+
+# About me
+* Senior Research Scientist and Biostatistician
+* Center for Drug Use and HIV Research
+* Research and Methods Interests
+     + HIV prevention and care 
+     + health disparities
+     + meta-analysis
+     + longitudinal data analysis
+* Contact
+     + email: cmc13@nyu.edu
+     + phone: 212-992-9417
+     + location: 433 First Ave., Room 737
+   
+# Goals for Today
+* What is R
+* Why I use R and you should too
+* Getting data into and out of R
+* Data management with R
+* Making plots with R
+* Common statistical analyses done in R (e.g., t-tests, regression)
+* R packages
+* Resources to learn more and the possibility of an ongoing R interest group
+
+# What is R?
+* A statistical computing language and environment
+* Windows, Mac, Unix, Linux
+* Open source
+* Organized into packages of functions and other objects
+
+# R vs. R Studio
+
+# Basic Operations
+```{r }
+1 + 2 + 3
+1 + 2 * 3
+(1 + 2) * 3
+c(0,1,2,3,5,8)
+1:11
+1:11 + 3
+```
+
+# Assignment
+```{r}
+x <- 3
+y <- 1:10
+z <- c(1,20,3,6)
+```
+
+# Evaluation
+```{r}
+x
+y
+z
+x + y
+x * z
+```
+
+# Getting help within R
+```{r echo=TRUE, eval=FALSE}
+?mean
+help(mean)
+```
+
+# Types of R Objects
+* Data frame
+     + Like the typical two-dimensional table of data in other programs
+* Vector
+* matrix
+     + Also a two dimensional table of data, but every variable is of the same type
+* List
+     + A way to combine objects, possibly of different types, into a composite object
+     + Very powerful because you can apply functions to lists
+     + Provides ways to get a great deal accomplished with very concise code
+* Function
+
+# Types of R variables in Data Frames
+* Character
+```{r }
+my.character <- c('Emma','Olivia','Sophia')
+my.character
+```
+* Date
+```{r }
+my.dates <- c(as.Date("2012-04-05"), Sys.Date())
+my.dates
+```
+* Numeric
+```{r }
+my.numeric <- c(12,62.3,7,101)
+my.numeric
+```
+* Factor
+```{r }
+my.factor <- factor(c(0,0,0,1,1), labels=c('Female','Male'))
+my.factor
+```
+* Logical
+```{r }
+my.logical <- c(TRUE,FALSE,FALSE)
+my.logical
+```
+
+# Vectorized Arithmetic
+```{r }
+weight.kg <- c(60, 72, 57, 90, 95, 72)
+height.meters <- c(1.75, 1.80, 1.65, 1.90, 1.74, 1.91)
+bmi <- weight.kg/height.meters^2
+bmi
+```
+* Works element by element in the weight.kg and height.meters vectors
+* There is no need for a loop
+
+# Make simple R objects
+```{r }
+byear <- c(68,69,71,72)
+byear
+Boys <- data.frame(kid = c('JHC','CMC','REC','WBC'), 
+                   byear = c(68,69,70,71))
+Boys
+```
+
+# Access names and types of variables in a data frame
+```{r }
+names(Boys)
+str(Boys)
+```
+
+# Accessing variables in data frames
+```{r }
+Boys$kid
+with(Boys, mean(byear))
+```
+
+# The R Workspace
+* Objects you create are stored in a workspace
+* R allows working with multiple objects at once, not just a single dataset
+* Here is how to show what is in the workspace at any given point:
+
+```{r }
+ls()
+```
+
+* When you load packages, the objects in those packages are in different workspaces
+* I am going to load a package called haven which has functions for reading data from and writing data to other formats
+
+```{r }
+library(haven)
+```
+* I just made the objects in the haven package available
+* I can see what those objects are (all functions) using a variation of the ls() command:
+```{r }
+ls("package:haven")
+```
+
+# Getting data into R
+* read.table for plain text (comma or tab delimited)
+* read_sav for SPSS (haven package)
+* read_dta for Stata (haven package)
+* read.xlsx for MS-Excel (openxlsx package)
+* Many other formats and connections to databases
+
+# read.table
+```{r }
+mytable <- read.table("c:/chuck/NYU/Stat Group/table1.txt", sep=",", header=TRUE)
+mytable
+str(mytable)
+```
+
+# read_sav
+```{r }
+library(haven)
+titanic <- read_sav("c:/chuck/NYU/Stat Group/titanic.sav")
+head(titanic)
+attributes(titanic)$variable.labels
+```
+
+# Read and combine many files
+* There are 8 MS-Excel files with the same structure in a folder
+* Each has 10 observations on two variables, X and Y
+* First, I load the package needed for reading Excel files, then get a list of the file names
+```{r }
+library(openxlsx)
+my.files <- list.files("c:/chuck/NYU/Stat Group/R Workshop/Many Files/", 
+                       pattern = ".xlsx$", full.names=TRUE, recursive=TRUE)
+my.files # vector of the file names with full path
+```
+
+* Next I gather the names of the worksheets within each workbook
+```{r }
+my.sheets <- lapply(my.files, function(x){getSheetNames(x)}) # list of worksheet names 
+                                                             # within each MS-Excel workbook
+unlist(my.sheets)
+```
+* I put the workbook filenames and worksheet names together in a data frame
+```{r }
+my.sheets.DF <- data.frame(file = rep(my.files, unlist(lapply(my.sheets, length))), sheet = unlist(my.sheets))
+my.sheets.DF
+```
+* I create an empty list to hold each data file
+```{r }
+my.list <- vector(mode="list", length = nrow(my.sheets.DF)) # empty list to hold each data file
+```
+* I loop over the file and worksheet names, reading each in and putting it into the list
+```{r }
+for(i in 1:nrow(my.sheets.DF)){
+  my.list[[i]] <- read.xlsx(xlsxFile = as.character(my.sheets.DF$file)[i], 
+                            sheet = as.character(my.sheets.DF$sheet)[i])  
+}
+```
+* Finally, I combine the 8 data frames into one big data frame
+```{r }
+my.DF <- as.data.frame(do.call(rbind, my.list))
+dim(my.DF) # 80 observations, 2 variables 
+```
+* The example has just 8 files in the folder, but it could be thousands and the principle is the same
+
+# Getting data out of R
+* write.table for plain text (comma or tab delimited)
+* write_sav for SPSS (haven package)
+* write_dta for Stata (haven package)
+* write.xlsx for MS-Excel (openxlsx package)
+
+# Data management: Recoding
+```{r results='hide'}
+library(car)
+auto <- read_sav("c:/chuck/NYU/Stat Group/R Workshop/auto.sav")
+summary(auto$MPG)
+auto$MPG3 <- car::recode(auto$MPG, "lo:18=1; 19:23=2; 24:hi=3")
+```
+
+```{r }
+table(auto$MPG3)
+```
+
+# Data management: Merging
+Two data frames with a common ID variable
+```{r }
+A <- data.frame(famid = c(2,1,3), 
+                name = c('Art','Bill','Paul'), 
+                inc = c(22,30,25))
+B <- data.frame(famid = c(3,1,2), 
+                faminc96 = c(75,40,45), 
+                faminc97 = c(76,40.5,40.4), 
+                faminc98 = c(77,41,45.8))
+intersect(names(A), names(B))
+```
+
+One Merged Data Frame
+```{r }
+A
+B
+AB <- merge(A, B)
+AB
+```
+
+# Data management: Subsetting
+```{r }
+bank <- read_sav("c:/chuck/NYU/Stat Group/bank.sav")
+head(bank)
+```
+* The <code>head()</code> function is a convenient way to see the first few observations of a data object
+
+* With the <code>subset()</code> function
+
+```{r }
+subset(bank, SALBEG < 4000 & SEX == "Males", select=c(ID,SEX,SALBEG,AGE,SALNOW))
+```
+
+* Or by indexing
+```{r }
+bank[bank$SALBEG < 4000 & bank$SEX == "Males", c(1,3,2,5,6)]
+```
+* In both cases, I selected males with a beginning salary less than 4000, and only certain variables
+     + subset specified the variables to include by name
+     + indexing specified the variables to include based on their location in the data frame
+
+# Data management: Reshaping, Wide to Long
+```{r }
+mytable <- read.table("c:/chuck/NYU/Stat Group/table1.txt", sep=",", header=TRUE)
+mytable
+library(dplyr)
+library(tidyr)
+longtab <- gather(mytable, year, inc, inc80:inc82)
+longtab
+```
+
+# Data management: Reshaping, Long to Wide
+```{r }
+longtab
+widetab <- spread(longtab, year, inc)
+widetab
+```
+
+# Reshaping with data.table
+* https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html
+* https://github.com/Rdatatable/data.table/wiki/Getting-started
+
+# Data management: Aggregating
+```{r }
+head(iris)
+aggregate(iris[,1:4], list(Species = iris$Species), FUN = mean)
+```
+
+# Data Management: Set Operations
+```{r }
+x <- c('A','B','C','D')
+y <- c('D','A','F','J')
+setdiff(x, y) # which elements of x are not in y
+setdiff(y, x) # which elements of y are not in x
+intersect(x, y) # what elements are in both x and y
+```
+
+```{r }
+union(x, y) # elements in either x or y
+"C" %in% x # is there a "C" in x
+y %in% c("F","J") # which elements of y are equal to "F" or "J"
+```
+
+# Data Management: Character Manipulation
+```{r }
+x <- c('A','B','C','D')
+grep('C', x)
+gsub('C', 'c', x)
+paste('Item', 1:10, sep="-")
+x <- c('fruit_apple','instrument_guitar','instrument_piano','fruit_orange','instrument_trumpet')
+grepl("fruit", x)
+```
+
+# Data Management: dplyr package
+* <code>library(dplyr)</code>
+* <code>filter()</code>
+* <code>select()</code>
+* <code>mutate()</code>
+* <code>summarize()</code>
+* <code>group_by()</code>
+* <code>arrange()</code>
+
+# Houston flights data
+* All flights departing from Houston airports IAH and HOU
+* Research and Innovation Technology Administration at the Bureau of Transporation Statistics
+
+```{r }
+library(hflights)
+head(hflights)
+```
+
+```{r }
+str(hflights)
+```
+
+# Using filter() to select observations
+* January flights by American Airlines
+```{r }
+head(filter(hflights, Month == 1, UniqueCarrier == "AA"))
+```
+
+# Using select() to select variables
+
+* Just the Departure Time, Arrival Time, and Air Time variables
+```{r }
+head(select(hflights, DepTime, ArrTime, AirTime))
+```
+* All variables that end with Time
+```{r }
+head(select(hflights, ends_with("Time")))
+```
+
+# Using mutate() to create new variables
+
+```{r }
+g1 <- mutate(hflights, ActualGroundTime = ActualElapsedTime - AirTime)
+head(select(g1, ActualElapsedTime, AirTime, ActualGroundTime))
+```
+
+# Using summarize()
+
+```{r }
+summarize(hflights, min_dist = min(Distance),
+                    mean_dist = mean(Distance),
+                    median_dist = median(Distance),
+                    sd_dist = sd(Distance),
+                    max_dist = max(Distance))
+```
+
+# Using group_by() and summarize() to summarize by group
+* This also illustrates the use of pipes in R
+```{r }
+hflights %>% group_by(UniqueCarrier) %>%
+summarize(min_dist = min(Distance),
+          mean_dist = mean(Distance),
+          median_dist = median(Distance),
+          sd_dist = sd(Distance),
+          max_dist = max(Distance))
+```
+
+# Notice group_by() and summarize() essentially aggregate
+
+```{r }
+iris %>% 
+  group_by(Species) %>%
+  summarize(Sepal.Length = mean(Sepal.Length),
+            Sepal.Width = mean(Sepal.Width),
+            Petal.Length = mean(Petal.Length),
+            Petal.Width = mean(Petal.Width))
+```
+* But much more flexibly!
+
+# Putting data into a desired order with arrange()
+
+```{r }
+hflights %>% group_by(UniqueCarrier) %>%
+summarize(min_dist = min(Distance),
+          mean_dist = mean(Distance),
+          median_dist = median(Distance),
+          sd_dist = sd(Distance),
+          max_dist = max(Distance)) %>%
+arrange(mean_dist)
+```
+
+# Benefits of Piping
+
+Without Piping
+```{r}
+arrange(
+  summarize(
+    group_by(
+      filter(mtcars, carb > 1),
+    cyl),
+  Avg_mpg = mean(mpg)
+  ),
+desc(Avg_mpg)  
+  )
+```
+
+
+With Piping
+```{r}
+mtcars %>%
+  filter(carb > 1) %>%
+  group_by(cyl) %>%
+  summarize(Avg_mpg = mean(mpg)) %>%
+  arrange(desc(Avg_mpg))
+```
+
+# Plots: Histogram
+```{r fig.align='center', fig.width=8, fig.height=5}
+hsb2 <- read_sav("https://clelandcm.github.io/Hands-On-R-Practice/hsb2.sav")
+library(ggplot2)
+ggplot(hsb2, aes(x = WRITE)) + geom_histogram(color = "grey", fill = "#34ebbd")
+```
+
+# Plots: Bar
+```{r }
+library(openxlsx)
+fname <- read.xlsx("c:/chuck/NYU/Stat Group/R Workshop/Female-Names.xlsx", sheet = 1)
+fname
+```
+
+```{r fig.align='center', fig.width=6, fig.height=6}
+ggplot(fname, aes(x = Name, y = Ngirls)) + 
+  geom_bar(stat = 'identity') + 
+  ylab('Number') + xlab('') + 
+  ggtitle('Ten Most Common Female Baby\nNames in 2014') +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+```
+
+# Plots: Scatter
+ggplot2 package
+```{r fig.align='center', fig.width=6, fig.height=6}
+ggplot(hsb2, aes(x = WRITE, y = READ)) + geom_point()
+```
+
+Base R
+```{r fig.align='center', fig.width=6, fig.height=6}
+plot(READ ~ WRITE, data = hsb2)
+```
+
+# Plots: Scatter Enhanced
+```{r fig.align='center', fig.width=8, fig.height=5}
+library(ggplot2)
+bank$GENDER <- as_factor(bank$GENDER)
+ggplot(subset(bank, SALNOW < 30000), aes(x = SALBEG, y = SALNOW, color = GENDER)) + 
+  geom_point()
+```
+
+# Plots: Scatter with Facets
+```{r fig.align='center', fig.width=8, fig.height=5}
+library(ggplot2)
+ggplot(subset(bank, SALNOW < 30000), aes(x = SALBEG, y = SALNOW)) + 
+  geom_point() + 
+  facet_wrap( ~ GENDER)
+```
+
+# Plots: Boxplots
+* Writing score on vertical axis
+```{r fig.align='center', fig.width=3, fig.height=6}
+hsb <- read_dta('c:/chuck/NYU/Stat Group/R Workshop/hsb.dta')
+hsb$female <- as.factor(hsb$female)
+ggplot(hsb, aes(x = female, y = write)) + geom_boxplot() + xlab("")
+```
+
+* Flip coordinates so writing score is on the horizontal axis
+```{r fig.align='center', fig.width=8, fig.height=3}
+ggplot(hsb, aes(x = female, y = write)) + geom_boxplot() + xlab("") + coord_flip()
+```
+
+# Plots: Alpha Transparency
+```{r echo=FALSE, results='hide'}
+myDF <- data.frame(X = runif(6000))
+myDF$Y <- 100 + 2.43*myDF$X + rnorm(6000)
+```
+
+* Without transparency
+```{r fig.align='center', fig.width=6, fig.height=6}
+ggplot(myDF, aes(x=X,y=Y)) + geom_point(color="blue", size=3)
+```
+
+* With transparency
+```{r fig.align='center', fig.width=6, fig.height=6}
+ggplot(myDF, aes(x=X,y=Y)) + geom_point(color="blue", size=3, alpha =.20)
+```
+
+# Plots: Networks
+```{r fig.align='center', fig.width=8, fig.height=5}
+library(igraph)
+net.bg <- barabasi.game(80) 
+V(net.bg)$frame.color <- sample(c("white","black"), size = 80, replace=TRUE, prob=c(0.5,0.5))
+V(net.bg)$color <- sample(c("orange","lightblue"), size = 80, replace=TRUE, prob=c(0.5,0.5))
+V(net.bg)$label <- "" 
+V(net.bg)$size <- 10
+E(net.bg)$arrow.mode <- 0
+plot(net.bg, layout=layout.lgl)
+```
+
+# Plots: More customized
+```{r fig.width = 9, fig.height = 6, warning=FALSE, cache=TRUE}
+library(ggplot2) # devtools::install_github("hadley/ggplot2")
+library(ggalt)   # devtools::install_github("hrbrmstr/ggalt")
+library(dplyr)   # for data_frame() & arrange()
+
+df <- data_frame(country=c("Germany", "France", "Vietnam", "Japan", "Poland", "Lebanon",
+                           "Australia", "South\nKorea", "Canada", "Spain", "Italy", "Peru",
+                           "U.S.", "UK", "Mexico", "Chile", "China", "India"),
+                 ages_35=c(0.39, 0.42, 0.49, 0.43, 0.51, 0.57,
+                           0.60, 0.45, 0.65, 0.57, 0.57, 0.65,
+                           0.63, 0.59, 0.67, 0.75, 0.52, 0.48),
+                 ages_18_to_34=c(0.81, 0.83, 0.86, 0.78, 0.86, 0.90,
+                                 0.91, 0.75, 0.93, 0.85, 0.83, 0.91,
+                                 0.89, 0.84, 0.90, 0.96, 0.73, 0.69),
+                 diff=sprintf("+%d", as.integer((ages_18_to_34-ages_35)*100)))
+
+df <- arrange(df, desc(diff))
+df$country <- factor(df$country, levels=rev(df$country))
+
+percent_first <- function(x) {
+  x <- sprintf("%d%%", round(x*100))
+  x[2:length(x)] <- sub("%$", "", x[2:length(x)])
+  x
+}
+
+gg <- ggplot()
+gg <- gg + geom_segment(data=df, aes(y=country, yend=country, x=0, xend=1), color="#b2b2b2", size=0.15)
+gg <- gg + geom_segment(data=df, aes(y=country, yend=country, x=ages_35, xend=ages_18_to_34), color="#b2b2b2", size=2)
+gg <- gg + geom_point(data=df, aes(x=ages_35, y = country), size=3, colour = "#9fb059")
+gg <- gg + geom_point(data=df, aes(x=ages_18_to_34, y = country), size=3, colour = "#edae52")
+gg <- gg + geom_text(data=dplyr::filter(df, country=="Germany"),
+                     aes(x=ages_35, y=country, label="Ages 35+"),
+                     color="#9fb059", size=3, vjust=-1, fontface="bold", family="Calibri")
+gg <- gg + geom_text(data=dplyr::filter(df, country=="Germany"),
+                     aes(x=ages_18_to_34, y=country, label="Ages 18-34"),
+                     color="#edae52", size=3, vjust=-1, fontface="bold", family="Calibri")
+gg <- gg + geom_text(data=df, aes(x=ages_35, y=country, label=percent_first(ages_35)),
+                     color="#9fb059", size=2.75, vjust=1.75, family="Calibri")
+gg <- gg + geom_text(data=df, color="#edae52", size=2.75, vjust=1.75, family="Calibri",
+                     aes(x=ages_18_to_34, y=country, label=percent_first(ages_18_to_34)))
+gg <- gg + geom_rect(data=df, aes(xmin=1.05, xmax=1.175, ymin=-Inf, ymax=Inf), fill="#efefe3")
+gg <- gg + geom_text(data=df, aes(label=diff, y=country, x=1.1125), fontface="bold", size=3, family="Calibri")
+gg <- gg + geom_text(data=filter(df, country=="Germany"), aes(x=1.1125, y=country, label="DIFF"),
+                     color="#7a7d7e", size=3.1, vjust=-2, fontface="bold", family="Calibri")
+gg <- gg + scale_x_continuous(expand=c(0,0), limits=c(0, 1.175))
+gg <- gg + scale_y_discrete(expand=c(0.075,0))
+gg <- gg + labs(x=NULL, y=NULL, title="The social media age gap",
+                subtitle="Adult internet users or reported smartphone owners who\nuse social networking sites",
+                caption="Source: Pew Research Center, Spring 2015 Global Attitudes Survey. Q74")
+gg <- gg + theme_bw(base_family="Calibri")
+gg <- gg + theme(panel.grid.major=element_blank())
+gg <- gg + theme(panel.grid.minor=element_blank())
+gg <- gg + theme(panel.border=element_blank())
+gg <- gg + theme(axis.ticks=element_blank())
+gg <- gg + theme(axis.text.x=element_blank())
+gg <- gg + theme(plot.title=element_text(face="bold"))
+gg <- gg + theme(plot.subtitle=element_text(face="italic", size=9, margin=margin(b=12)))
+gg <- gg + theme(plot.caption=element_text(size=7, margin=margin(t=12), color="#7a7d7e"))
+gg
+```
+
+# Analysis: descriptive statistics
+```{r }
+hsb <- read_dta('c:/chuck/NYU/Stat Group/R Workshop/hsb.dta')
+summary(hsb)
+```
+
+# Analysis: frequencies
+```{r }
+library(descr)
+with(bank, freq(JOBCAT, plot=FALSE))
+```
+
+# Analysis: crosstabulation
+```{r echo=FALSE, results='hide'}
+library(descr)
+ctab <- with(bank, crosstab(SEX, JOBCAT %in% c("Clerical","Office trainee"), 
+                    prop.r=TRUE, plot=FALSE, chisq=TRUE))
+```
+
+```{r echo=TRUE, results='hide'}
+library(descr)
+with(bank, CrossTable(SEX, JOBCAT %in% c("Clerical","Office trainee"), 
+                    prop.r=TRUE, prop.chi=FALSE, prop.t=FALSE, prop.c=FALSE, chisq=TRUE))
+```
+
+```{r , echo=FALSE, comment="."}
+ctab
+```
+
+# More detailed descriptive statistics for quantitative variables
+```{r }
+library(psych)
+psych::describe(subset(hsb, select=c(read,write,math,science,socst)))
+```
+
+# Analysis: t-tests
+- Following these examples: http://www.ats.ucla.edu/stat/stata/output/ttest_output.htm
+- One sample t-test where hypothesized mean for write score is 50
+```{r }
+hsb <- read_dta('c:/chuck/NYU/Stat Group/R Workshop/hsb.dta')
+with(hsb, t.test(write, mu=50))
+```
+
+- Paired t-test comparing read and write scores
+```{r }
+with(hsb, t.test(write, read, paired = TRUE))
+```
+
+- Independent-samples t-test comparing write scores of male and female students
+```{r }
+t.test(write ~ female, data = hsb, var.equal = TRUE)
+```
+
+- Do not assume equal variance in each group
+```{r }
+t.test(write ~ female, data = hsb)
+```
+
+# Analysis: Correlation
+```{r }
+hsb <- read_sav("c:/chuck/NYU/Stat Group/R Workshop/hsb2.sav")
+round(cor(subset(hsb, select=c(READ,WRITE,MATH,SCIENCE,SOCST))), 2)
+cor.test(~ READ + SOCST, data = hsb)
+```
+
+# Analysis: Linear Regression
+- Following this SPSS example: http://www.ats.ucla.edu/stat/spss/output/reg_spss.htm
+```{r }
+hsb <- read_sav("c:/chuck/NYU/Stat Group/R Workshop/hsb2.sav")
+head(hsb)
+```
+- Do the multiple regression analysis using the R lm() function (for linear model)
+```{r }
+lm.1 <- lm(SCIENCE ~ MATH + FEMALE + SOCST + READ, data = hsb)
+```
+
+- Summarize the fitted model
+```{r }
+summary(lm.1)
+```
+
+- Confidence intervals
+```{r }
+confint(lm.1)
+```
+
+# Analysis: Logistic Regression
+- Following this SPSS example: https://stats.idre.ucla.edu/spss/examples/alr2/applied-logistic-regression-second-edition-by-hosmer-and-lemeshowchapter-2-multiple-logistic-regression/
+- Chapter 2, Applied Logistic Regression, Second Edition, by Hosmer and Lemeshow
+
+Variable | Description                               | Codes/Values
+---------|-------------------------------------------|------------------------------
+LOW      | Low Birth Weight                          | 1 = BWT<=2500g, 0 = BWT>2500g
+AGE      | Age of Mother                             | Years
+LWT      | Weight of Mother at Last Menstrual Period | Pounds
+RACE     | Race                                      | 1=White, 2=Black, 3=Other
+FTV      | First Trimester Physician Visits          | 0=None, 1=One, 2=Two,etc.
+
+- R has a function, glm(), for generalized linear models, and logistic regression is a special case of generalized linear models
+- This is similar to the functionality of PROC GENMOD in SAS
+- Before modeling, we will read in the data and convert some variables to factors
+
+```{r }
+lowbwt <- read_sav('c:/chuck/NYU/Stat Group/R Workshop/lowbwt.sav')
+lowbwt$RACE <- car::recode(lowbwt$RACE, "1='White';2='Black';3='Other'", as.factor = TRUE)
+lowbwt$RACE <- relevel(lowbwt$RACE, ref = 'White')
+```
+
+- And now do the logistic regression
+
+```{r }
+lrm.1 <- glm(LOW ~ AGE + LWT + RACE + FTV, family='binomial', data = lowbwt)
+```
+
+- Summarize it
+```{r }
+summary(lrm.1)
+```
+
+- Odds ratios and confidence intervals
+```{r }
+exp(coef(lrm.1)[-1]) # Removing constant
+exp(confint(lrm.1)[-1,]) # Removing constant from confidence intervals too
+```
+
+# Extracting Data from Google Scholar
+```{r}
+library(scholar)
+library(purrr)
+
+DF <- data.frame(Person = c("Chuck Cleland","Sam Friedman","Holly Hagan","Dani Ompad"),
+                 GID = c("AuiR_rAAAAAJ","bQwCIGQAAAAJ","67LUQJUAAAAJ","Zxdn7DwAAAAJ"))
+
+do.call(rbind, map(map(DF$GID, get_profile), 
+                   function(x){data.frame(Person = x$name,
+                                          Total.Cites = x$total_cites,
+                                          h.index = x$h_index,
+                                          i10.index = x$i10_index)}))
+```
+
+# Generating Non-Random Data
+```{r}
+seq(1, 10, 2)
+104:114
+rep(c('A','B','C'), 3)
+rep(c('A','B','C'), each = 3)
+seq(1, 4, len = 6)
+expand.grid(Person = 1:5, Visit = 1:3)
+```
+
+# Generating Random Data
+```{r}
+rnorm(10)
+runif(10, min=100,max=999)
+rbinom(10, 1, .5)
+sample(letters[1:3], size = 30, replace=TRUE, prob = c(.8,.1,.1))
+sample(10)
+```
+
+# More on R Packages
+- There is an App for that
+- In R, there is a package for that
+- ggplot2
+     + plots
+- dplyr
+     + filtering
+     + subsetting
+     + variable creation
+     + summarizing
+- tidyr
+     + reshape wide to long
+     + reshape long to wide
+- openxlsx
+     + read and write MS-Excel files
+- descr
+     + frequency tables and crosstabs
+- lme4
+     + linear and generalized linear mixed effects
+
+# Where and how to find R packages
+- Comprehensive R Archive Network (CRAN; https://cran.r-project.org/mirrors.html)
+- CRAN task views (https://cloud.r-project.org/web/views/)
+- Google (e.g., "r-project psychometrics")
+- http://www.rdocumentation.org/
+- R <code>available.packages()</code> function
+
+# How to install and load R packages
+- Install
+     + R <code>install.packages()</code> function
+     + Part of the RStudio and RWindows menus
+- Load a package to make content available to R
+     + R <code>library()</code> function
+```{r eval=FALSE}
+install.packages("epiR")
+```
+```{r }
+library(epiR)
+head(ls("package:epiR"), n = 30)
+```
+
+# Resources to Learn More
+- http://www.r-project.org/
+- http://www.rdocumentation.org/
+- Springer Use R! Series (http://www.springer.com/series/6991)
+- Cross Validated (http://stats.stackexchange.com/)
+

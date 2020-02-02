@@ -1,0 +1,48 @@
+---
+title: "Silver Statistics Practicum"
+author: "Last Updated"
+date: '`r format(Sys.time(), "%B %d, %Y %r %Z")`'
+output:
+  html_document:
+    highlight: tango
+    theme: spacelab
+    toc: yes
+    toc_depth: 5
+  word_document:
+    toc: yes
+    toc_depth: '5'
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fig.width = 6, out.width = "90%", fig.align = "center", dev='svg')
+```
+
+# Learning R
+* [R Introduction](https://clelandcm.github.io/Hands-On-R-Practice/Silver-Practicum/Cleland-R-Introduction.html)
+* [Hands-On R Practice](https://clelandcm.github.io/Hands-On-R-Practice/)
+* [UCLA Institute for Digital Research & Education Resources for Learning R](https://stats.idre.ucla.edu/R/)
+
+# Learning Stata
+* [Oscar Torres-Reyna Stata Tutorial](http://www.princeton.edu/~otorres/StataTutorial.pdf)
+* [Germán Rodríguez Stata Tutorial](https://data.princeton.edu/stata/)
+* [UCLA Institute for Digital Research & Education Resources for Learning Stata](https://stats.idre.ucla.edu/stata/)
+* [Stata YouTube Videos](https://www.youtube.com/user/statacorp/videos)
+
+# Datasets
+
+* [nlsw88 Stata](http://www.stata-press.com/data/r8/nlsw88.dta)  
+* [Titanic comma-delimited](https://clelandcm.github.io/Silver-Practicum/titanic.csv)  
+* [Titanic MS-Excel](https://clelandcm.github.io/Silver-Practicum/titanic.xlsx)  
+* [Bands MS-Excel](https://clelandcm.github.io/Silver-Practicum/Bands.xlsx)  
+* [Health MS-Excel](https://clelandcm.github.io/Silver-Practicum/Health.xlsx)  
+* [High School and Beyond SPSS](https://clelandcm.github.io/Silver-Practicum/hsb2.sav)  
+* [Bank SPSS](https://clelandcm.github.io/Silver-Practicum/bank.sav)  
+* [NHANES Stata](https://clelandcm.github.io/Silver-Practicum/nhanes.dta)  
+
+
+
+
+
+
+
