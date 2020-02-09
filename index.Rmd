@@ -19,32 +19,29 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fi
 ```
 
 # Learning R
-* [R Introduction](https://clelandcm.github.io/Silver-Practicum/Cleland-R-Introduction.html)
-* [Hands-On R Practice](https://clelandcm.github.io/Hands-On-R-Practice/)
+* [Cleland R Introduction](https://clelandcm.github.io/Silver-Practicum/Cleland-R-Introduction.html)
+* [Cleland Hands-On R Practice](https://clelandcm.github.io/Hands-On-R-Practice/)
 * [UCLA Institute for Digital Research & Education Resources for Learning R](https://stats.idre.ucla.edu/R/)
 
 # Learning Stata
+* [Cleland Stata Introduction](https://clelandcm.github.io/Silver-Practicum/Cleland-Stata-Introduction.html)
 * [Oscar Torres-Reyna Stata Tutorial](http://www.princeton.edu/~otorres/StataTutorial.pdf)
 * [Germán Rodríguez Stata Tutorial](https://data.princeton.edu/stata/)
 * [UCLA Institute for Digital Research & Education Resources for Learning Stata](https://stats.idre.ucla.edu/stata/)
 * [Stata YouTube Videos](https://www.youtube.com/user/statacorp/videos)
+* [Stata Cheat Sheets](https://www.stata.com/bookstore/stata-cheat-sheets/)
 
 # Datasets
-
 * [nlsw88 Stata](http://www.stata-press.com/data/r8/nlsw88.dta)  
 * [Titanic comma-delimited](https://clelandcm.github.io/Silver-Practicum/titanic.csv)  
-* [Titanic MS-Excel](https://clelandcm.github.io/Silver-Practicum/titanic.xlsx)
-* [Titanic SPSS](https://clelandcm.github.io/Silver-Practicum/titanic.sav)
+* [Titanic MS-Excel](https://clelandcm.github.io/Silver-Practicum/titanic.xlsx)  
 * [Bands MS-Excel](https://clelandcm.github.io/Silver-Practicum/Bands.xlsx)  
 * [Health MS-Excel](https://clelandcm.github.io/Silver-Practicum/Health.xlsx)  
-* [High School and Beyond SPSS](https://clelandcm.github.io/Silver-Practicum/hsb2.sav)
-* [High School and Beyond Stata](https://clelandcm.github.io/Silver-Practicum/hsb2.dta) 
-* [Bank SPSS](https://clelandcm.github.io/Silver-Practicum/bank.sav)  
-* [NHANES Stata](https://clelandcm.github.io/Silver-Practicum/nhanes.dta)
-* [Low Birth Weight SPSS](https://clelandcm.github.io/Silver-Practicum/lowbwt.sav)
-* [Female Names MS-Excel](https://clelandcm.github.io/Silver-Practicum/Female-Names.xlsx)
-* [Auto SPSS](https://clelandcm.github.io/Silver-Practicum/auto.sav)
+* [High School and Beyond SPSS](https://clelandcm.github.io/Silver-Practicum/hsb2.sav)  
+* [Bank SPSS](https://clelandcm.github.io/Silver-Practicum/bank.sav)
+* [NHANES Stata](https://clelandcm.github.io/Silver-Practicum/nhanes.dta)  
 
+[Stata do file for introduction](https://clelandcm.github.io/Silver-Practicum/Intro.do)
 
 
 
