@@ -32,14 +32,30 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fi
 * [Stata Cheat Sheets](https://www.stata.com/bookstore/stata-cheat-sheets/)
 
 # Datasets
-* [nlsw88 Stata](http://www.stata-press.com/data/r8/nlsw88.dta)  
-* [Titanic comma-delimited](https://clelandcm.github.io/Silver-Practicum/titanic.csv)  
-* [Titanic MS-Excel](https://clelandcm.github.io/Silver-Practicum/titanic.xlsx)  
-* [Bands MS-Excel](https://clelandcm.github.io/Silver-Practicum/Bands.xlsx)  
-* [Health MS-Excel](https://clelandcm.github.io/Silver-Practicum/Health.xlsx)  
-* [High School and Beyond SPSS](https://clelandcm.github.io/Silver-Practicum/hsb2.sav)  
-* [Bank SPSS](https://clelandcm.github.io/Silver-Practicum/bank.sav)
-* [NHANES Stata](https://clelandcm.github.io/Silver-Practicum/nhanes.dta)  
+
+## Stata
+* [nlsw88](http://www.stata-press.com/data/r8/nlsw88.dta)  
+* [NHANES](https://clelandcm.github.io/Silver-Practicum/nhanes.dta)  
+* [High School and Beyond](https://clelandcm.github.io/Silver-Practicum/hsb2.dta)
+* [Low Birth Weight](https://clelandcm.github.io/Silver-Practicum/lowbwt.dta)
+* [Bank](https://clelandcm.github.io/Silver-Practicum/bank.dta)
+
+## MS-Excel
+* [Titanic](https://clelandcm.github.io/Silver-Practicum/titanic.xlsx)
+* [Bands](https://clelandcm.github.io/Silver-Practicum/Bands.xlsx)  
+* [Health](https://clelandcm.github.io/Silver-Practicum/Health.xlsx)
+* [Female Names](https://clelandcm.github.io/Silver-Practicum/Female-Names.xlsx)
+* [Score Long Format](https://clelandcm.github.io/Silver-Practicum/Scores-Long.xlsx)
+
+## SPSS
+* [Auto](https://clelandcm.github.io/Silver-Practicum/auto.sav)
+* [Bank](https://clelandcm.github.io/Silver-Practicum/bank.sav)
+* [High School and Beyond](https://clelandcm.github.io/Silver-Practicum/hsb2.sav)  
+* [Low Birth Weight](https://clelandcm.github.io/Silver-Practicum/lowbwt.sav)
+
+## Plain Text
+* [Titanic](https://clelandcm.github.io/Silver-Practicum/titanic.csv)
+* [Table 1](https://clelandcm.github.io/Silver-Practicum/table1.txt)
 
 [Stata do file for introduction](https://clelandcm.github.io/Silver-Practicum/Intro.do)
 
