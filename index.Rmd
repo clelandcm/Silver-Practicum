@@ -57,7 +57,8 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fi
 * [Titanic](https://clelandcm.github.io/Silver-Practicum/titanic.csv)
 * [Table 1](https://clelandcm.github.io/Silver-Practicum/table1.txt)
 
-[Stata do file for introduction](https://clelandcm.github.io/Silver-Practicum/Intro.do)
+[Stata do file for introduction](https://clelandcm.github.io/Silver-Practicum/Intro.do)  
+[Stata Introduction dyndoc result](https://clelandcm.github.io/Silver-Practicum/Intro-dyndoc.html)
 
 
 
