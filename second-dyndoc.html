@@ -1,0 +1,196 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="stmarkdown.css">
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+</head>
+<h1><a href="#titanic-data-logistic-regression" id="titanic-data-logistic-regression">Titanic Data Logistic Regression</a></h1>
+<h2><a href="#read-in-stata-data-file" id="read-in-stata-data-file">Read in Stata Data File</a></h2>
+<pre><code>. use &quot;https://clelandcm.github.io/Silver-Practicum/titanic.dta&quot;, clear
+
+</code></pre>
+<h2><a href="#describe" id="describe">Describe</a></h2>
+<pre><code>. describe
+
+Contains data from https://clelandcm.github.io/Silver-Practicum/titanic.dta
+  obs:         1,309                          
+ vars:             5                          22 Feb 2020 11:15
+---------------------------------------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+---------------------------------------------------------------------------------------------------------------------
+pclass          byte    %8.0f      labels0    Passenger Class
+survived        byte    %9.0f      labels1    Survived
+age             double  %8.2f                 Passenger Age
+fare            double  %6.2f                 Passenger Fare
+gender          byte    %8.0f      labels2    Passenger Gender
+---------------------------------------------------------------------------------------------------------------------
+Sorted by: 
+
+</code></pre>
+<h2><a href="#how-many-passengers-survived" id="how-many-passengers-survived">How many passengers survived?</a></h2>
+<pre><code>. tabulate survived
+
+   Survived |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         No |        809       61.80       61.80
+        Yes |        500       38.20      100.00
+------------+-----------------------------------
+      Total |      1,309      100.00
+
+</code></pre>
+<h2><a href="#how-many-passengers-in-each-passenger-class" id="how-many-passengers-in-each-passenger-class">How many passengers in each passenger class?</a></h2>
+<pre><code>. tabulate pclass
+
+  Passenger |
+      Class |      Freq.     Percent        Cum.
+------------+-----------------------------------
+      First |        323       24.68       24.68
+     Second |        277       21.16       45.84
+      Third |        709       54.16      100.00
+------------+-----------------------------------
+      Total |      1,309      100.00
+
+</code></pre>
+<h2><a href="#detailed-descriptive-statistics-for-age-and-fare-by-survival" id="detailed-descriptive-statistics-for-age-and-fare-by-survival">Detailed descriptive statistics for age and fare by survival</a></h2>
+<pre><code>. tabstat age fare, statistics( count mean median sd iqr min max ) by(survived)
+
+Summary statistics: N, mean, p50, sd, iqr, min, max
+  by categories of: survived (Survived)
+
+survived |       age      fare
+---------+--------------------
+      No |       619       808
+         |  30.54537  23.35383
+         |        28      10.5
+         |  13.92254   34.1451
+         |        18   18.1458
+         |     .3333         0
+         |        74       263
+---------+--------------------
+     Yes |       427       500
+         |  28.91823  49.36118
+         |        28        26
+         |  15.06148   68.6488
+         |        18   46.5625
+         |     .1667         0
+         |        80  512.3292
+---------+--------------------
+   Total |      1046      1308
+         |  29.88113  33.29548
+         |        28   14.4542
+         |   14.4135  51.75867
+         |        18   23.3792
+         |     .1667         0
+         |        80  512.3292
+------------------------------
+
+</code></pre>
+<h2><a href="#logistic-regression-with-main-effects-for-gender-age-and-passenger-class" id="logistic-regression-with-main-effects-for-gender-age-and-passenger-class">Logistic regression with main effects for gender, age, and passenger class</a></h2>
+<pre><code>. logit survived i.gender i.pclass age, or
+
+Iteration 0:   log likelihood = -707.31022  
+Iteration 1:   log likelihood = -494.76699  
+Iteration 2:   log likelihood = -491.24143  
+Iteration 3:   log likelihood = -491.22655  
+Iteration 4:   log likelihood = -491.22655  
+
+Logistic regression                             Number of obs     =      1,046
+                                                LR chi2(4)        =     432.17
+                                                Prob &gt; chi2       =     0.0000
+Log likelihood = -491.22655                     Pseudo R2         =     0.3055
+
+------------------------------------------------------------------------------
+    survived | Odds Ratio   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      gender |
+     Female  |   12.15626   2.018459    15.04   0.000     8.779391    16.83201
+             |
+      pclass |
+     Second  |   .2778789   .0626741    -5.68   0.000      .178596    .4323541
+      Third  |   .1013008   .0228749   -10.14   0.000     .0650731    .1576974
+             |
+         age |   .9661915   .0061172    -5.43   0.000     .9542761    .9782556
+       _cons |   2.784948   .8251482     3.46   0.001     1.558174    4.977582
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+</code></pre>
+<h2><a href="#rescale-age-and-specify-interaction-between-gender-and-passenger-class" id="rescale-age-and-specify-interaction-between-gender-and-passenger-class">Rescale age and specify interaction between gender and passenger class</a></h2>
+<pre><code>. gen age10 = age/10
+(263 missing values generated)
+
+. logit survived i.gender##i.pclass age10, or
+
+Iteration 0:   log likelihood = -707.31022  
+Iteration 1:   log likelihood = -468.32253  
+Iteration 2:   log likelihood = -466.03371  
+Iteration 3:   log likelihood = -465.99463  
+Iteration 4:   log likelihood = -465.99454  
+Iteration 5:   log likelihood = -465.99454  
+
+Logistic regression                             Number of obs     =      1,046
+                                                LR chi2(6)        =     482.63
+                                                Prob &gt; chi2       =     0.0000
+Log likelihood = -465.99454                     Pseudo R2         =     0.3412
+
+--------------------------------------------------------------------------------
+      survived | Odds Ratio   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+        gender |
+       Female  |   48.73462   24.00861     7.89   0.000     18.55675    127.9892
+               |
+        pclass |
+       Second  |   .2018403   .0609532    -5.30   0.000     .1116749    .3648044
+        Third  |   .2067681   .0522122    -6.24   0.000     .1260497    .3391761
+               |
+ gender#pclass |
+Female#Second  |   1.072941   .6772223     0.11   0.911     .3113948    3.696919
+ Female#Third  |   .0830088   .0448482    -4.61   0.000     .0287895     .239339
+               |
+         age10 |   .6811223   .0459286    -5.69   0.000     .5967988      .77736
+         _cons |   2.504168   .7917046     2.90   0.004     1.347572    4.653448
+--------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+</code></pre>
+<h2><a href="#test-overall-interaction-term" id="test-overall-interaction-term">Test overall interaction term</a></h2>
+<pre><code>. testparm gender#pclass
+
+ ( 1)  [survived]1.gender#2.pclass = 0
+ ( 2)  [survived]1.gender#3.pclass = 0
+
+           chi2(  2) =   43.91
+         Prob &gt; chi2 =    0.0000
+
+</code></pre>
+<h2><a href="#simple-main-effects-of-gender-within-each-passenger-class" id="simple-main-effects-of-gender-within-each-passenger-class">Simple main effects of gender within each passenger class</a></h2>
+<pre><code>. contrast r.gender@pclass, effects or
+
+Contrasts of marginal linear predictions
+
+Margins      : asbalanced
+
+------------------------------------------------------------
+                         |         df        chi2     P&gt;chi2
+-------------------------+----------------------------------
+           gender@pclass |
+ (Female vs Male) First  |          1       62.23     0.0000
+(Female vs Male) Second  |          1       98.62     0.0000
+ (Female vs Male) Third  |          1       40.10     0.0000
+                  Joint  |          3      200.39     0.0000
+------------------------------------------------------------
+
+------------------------------------------------------------------------------------------
+                         | Odds Ratio   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+-------------------------+----------------------------------------------------------------
+           gender@pclass |
+ (Female vs Male) First  |   48.73462   24.00861     7.89   0.000     18.55675    127.9892
+(Female vs Male) Second  |   52.28935     20.834     9.93   0.000     23.94767     114.173
+ (Female vs Male) Third  |   4.045403   .8928538     6.33   0.000      2.62479    6.234893
+------------------------------------------------------------------------------------------
+
+</code></pre>
