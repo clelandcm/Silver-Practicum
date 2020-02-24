@@ -1,0 +1,179 @@
+<<dd_version: 2>>
+<<dd_include: header.txt >>
+
+# Additional Data Management Examples
+~~~~
+<<dd_ignore>>
+cd c:/chuck/NYU/Silver/Practicum/
+net from http://www.stata-press.com/data/dmus
+net get dmus1
+net get dmus2
+<</dd_ignore>>
+~~~~
+
+## Set working directory, load a dataset, and describe it
+~~~~
+<<dd_do>>
+cd c:/chuck/NYU/Silver/Practicum/
+use wws2
+describe
+<</dd_do>>
+~~~~
+
+## Generate and replace
+~~~~
+<<dd_do>>
+tabulate married nevermarried
+generate smd = 1 if (married==0) & (nevermarried==1)
+replace smd = 2 if (married==1) & (nevermarried==0)
+replace smd = 3 if (married==0) & (nevermarried==0)
+replace smd = . if (married==1) & (nevermarried==1)
+tabulate smd, missing
+table smd married nevermarried 
+<</dd_do>>
+~~~~
+
+## Numeric expressions
+~~~~
+<<dd_do>>
+generate intwage = int(wage)
+generate rndwage = round(wage,1.00)
+generate lnwage = ln(wage)
+generate logwage = log10(wage)
+generate sqrtwage = sqrt(wage)
+list wage intwag rndwage lnwage logwage sqrtwage in 1/5
+<</dd_do>>
+~~~~
+
+## String expressions
+~~~~
+<<dd_do>>
+use dentlab2, clear
+format name %-17s
+list
+generate name2 = proper(name)
+generate lowname = lower(name)
+generate upname = upper(name)
+list name2 lowname upname
+generate name3 = ltrim(name2)
+format name2 name3 %-17s
+list name name2 name3
+generate secondchar = substr(name3, 2, 1)
+generate firstinit = (secondchar==" " | secondchar==".") if ! missing(secondchar)
+list name3 secondchar firstinit
+generate namecnt = wordcount(name3)
+list name3 namecnt
+<</dd_do>>
+~~~~
+
+## Recoding
+~~~~
+<<dd_do>>
+use wws2lab, clear
+codebook occupation, tabulate(20)
+recode occupation (1/3=1) (5/8=2) (4 9/13=3), generate(occ3)
+table occupation occ3
+<</dd_do>>
+~~~~
+
+## Computations Across Variables
+~~~~
+<<dd_do>>
+use cardio2miss, clear
+list
+generate avgbp = (bp1 + bp2 + bp3 + bp4 + bp5) / 5
+list id bp1 bp2 bp3 bp4 bp5 avgbp
+egen avgbp2 = rowmean(bp1 bp2 bp3 bp4 bp5)
+list id bp1 bp2 bp3 bp4 bp5 avgbp2
+egen avgpulse = rowmean(pl1-pl5)
+list id pl1-pl5 avgpulse
+egen bpmin = rowmin(bp1-bp5)
+egen bpmax = rowmax(bp1-bp5)
+list id bp1-bp5 bpmin bpmax
+egen bpmiss = rowmiss(bp1-bp5)
+egen bpnonmiss = rownonmiss(bp1-bp5)
+list id bp1-bp5 bpmiss bpnonmiss, abb(20)
+<</dd_do>>
+~~~~
+
+## Computations Across Observations
+~~~~
+<<dd_do>>
+use gasctrysmall, clear
+list, sepby(ctry)
+egen avggas = mean(gas)
+list ctry year gas avggas, sepby(ctry)
+bysort ctry: egen avggas_ctry = mean(gas)
+list ctry year gas avggas_ctry, sepby(ctry) abb(20)
+<</dd_do>>
+~~~~
+
+# Titanic Data Logistic Regression
+## Read in Stata Data File
+~~~~
+<<dd_do>>
+use "https://clelandcm.github.io/Silver-Practicum/titanic.dta", clear
+<</dd_do>>
+~~~~
+
+## Describe
+~~~~
+<<dd_do>>
+describe
+<</dd_do>>
+~~~~
+
+## How many passengers survived?
+~~~~
+<<dd_do>>
+tabulate survived
+<</dd_do>>
+~~~~
+
+## How many passengers in each passenger class?
+~~~~
+<<dd_do>>
+tabulate pclass
+<</dd_do>>
+~~~~
+
+## Detailed descriptive statistics for age and fare by survival
+~~~~
+<<dd_do>>
+tabstat age fare, statistics( count mean median sd iqr min max ) by(survived)
+<</dd_do>>
+~~~~
+
+## Logistic regression with main effects for gender, age, and passenger class
+~~~~
+<<dd_do>>
+logit survived i.gender i.pclass age, or
+<</dd_do>>
+~~~~
+
+## Rescale age and specify interaction between gender and passenger class
+~~~~
+<<dd_do>>
+gen age10 = age/10
+logit survived i.gender##i.pclass age10, or
+<</dd_do>>
+~~~~
+
+## Test overall interaction term
+~~~~
+<<dd_do>>
+testparm gender#pclass
+<</dd_do>>
+~~~~
+
+## Simple main effects of gender within each passenger class
+~~~~
+<<dd_do>>
+contrast r.gender@pclass, effects or
+<</dd_do>>
+~~~~
+
+
+
+
+
